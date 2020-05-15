@@ -6,6 +6,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 
 import Me from './Me';
 import Pusher from './Pusher';
+import Player from './Player'
 
 const {Navigator, Screen} = createBottomTabNavigator();
 
@@ -35,6 +36,7 @@ const Home = () => (
   <RootNavigator screenOptions={{headerShown: false}}>
     <RootScreen name="tabScreens" component={TabScreens} />
     <RootScreen name="pusher" component={Pusher} />
+    <RootScreen name="player" component={Player} />
   </RootNavigator>
 );
 

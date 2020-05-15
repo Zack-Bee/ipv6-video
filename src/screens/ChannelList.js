@@ -88,7 +88,6 @@ const ChannelList = () => (
       options={{title: '频道列表', headerTitleAlign: 'center'}}
       component={Index}
     />
-    <Screen name="player" component={Index} />
     <Screen name="scan" component={Index} />
   </Navigator>
 );

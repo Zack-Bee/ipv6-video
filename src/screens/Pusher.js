@@ -1,26 +1,8 @@
-import React, {useState, useEffect, useCallback, useRef} from 'react';
-import AsyncStorage from '@react-native-community/async-storage';
-import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
-import {
-  View,
-  Image,
-  StatusBar,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-  TouchableOpacity,
-} from 'react-native';
-import {Button, Layout, Text} from '@ui-kitten/components';
-import QRCode from 'react-native-qrcode-svg';
+import React, {useState, useRef} from 'react';
+import {View, StyleSheet, Dimensions, TouchableOpacity} from 'react-native';
 import {NodeCameraView} from 'react-native-nodemediaclient';
 
-import config from '../../config/config';
-import fetchJSON from '../utils/fetchJSON';
-import {
-  useFocusEffect,
-  useNavigation,
-  useRoute,
-} from '@react-navigation/native';
+import {useFocusEffect, useRoute} from '@react-navigation/native';
 import createIcon from '../utils/createIcon';
 const {height, width} = Dimensions.get('window');
 
@@ -34,7 +16,6 @@ export default () => {
   } = useRoute();
   const cameraRef = useRef();
   const [isPushing, setIsPushing] = useState(false);
-  const [cameraId, setCameraId] = useState(0);
   const toogleStart = () => {
     if (cameraRef.current) {
       if (!isPushing) {
@@ -52,20 +33,14 @@ export default () => {
       cameraRef.current.switchCamera();
     }
   };
-  useFocusEffect(() => {
-    return () => {
-      // if (cameraRef.current) {
-      //   cameraRef.current.stop();
-      // }
-    };
-  });
+
   return (
     <View style={styles.container}>
       <NodeCameraView
         style={{height, width, flex: 1}}
         ref={cameraRef}
         outputUrl={rtmpUrl}
-        camera={{cameraId, cameraFrontMirror: true}}
+        camera={{cameraId: 0, cameraFrontMirror: true}}
         audio={{bitrate: 32000, profile: 1, samplerate: 44100}}
         video={{
           preset: 4,
@@ -98,7 +73,7 @@ export default () => {
             justifyContent: 'center',
             alignItems: 'center',
             backgroundColor: 'rgba(0, 0, 0, 0.3)',
-            borderRadius: 48
+            borderRadius: 48,
           }}
           onPress={toogleCamera}>
           <FlipIcon

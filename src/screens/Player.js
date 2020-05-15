@@ -11,9 +11,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {Button, Layout, Text} from '@ui-kitten/components';
-import QRCode from 'react-native-qrcode-svg';
-import {NodeCameraView} from 'react-native-nodemediaclient';
-
+import Player from 'react-native-p2p-rtmp-player';
 import config from '../../config/config';
 import fetchJSON from '../utils/fetchJSON';
 import {
@@ -30,58 +28,33 @@ const PauseIcon = createIcon('pause-circle');
 
 export default () => {
   const {
-    params: {rtmpUrl},
+    params: {channelId, title, channelName},
   } = useRoute();
-  const cameraRef = useRef();
-  const [isPushing, setIsPushing] = useState(false);
-  const toogleStart = () => {
-    if (cameraRef.current) {
-      if (!isPushing) {
-        cameraRef.current.start();
-        setIsPushing(true);
-      } else {
-        cameraRef.current.stop();
-        setIsPushing(false);
+  const playerRef = useRef();
+  useEffect(() => {
+    console.log(typeof playerRef.current);
+    if (playerRef.current) {
+      console.log({channelId, channelName});
+      playerRef.current.startRtmp({
+        host: config.host,
+        appName: 'live',
+        streamName: channelId,
+        isBroadcast: true,
+        port: 1935,
+      });
+    }
+    return () => {
+      console.log('in effect');
+      if (playerRef.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        // playerRef.current.release();
       }
-    }
-  };
-  useFocusEffect(() => {
-    if (cameraRef.current) {
-      cameraRef.current.stop();
-    }
-  });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playerRef.current]);
   return (
     <View style={styles.container}>
-      <NodeCameraView
-        style={{height, width, flex: 1}}
-        ref={cameraRef}
-        outputUrl={rtmpUrl}
-        camera={{cameraId: 1, cameraFrontMirror: true}}
-        audio={{bitrate: 32000, profile: 1, samplerate: 44100}}
-        video={{
-          preset: 12,
-          bitrate: 400000,
-          profile: 1,
-          fps: 30,
-          videoFrontMirror: false,
-        }}
-        autopreview={true}
-      />
-      <View style={styles.operationButtonWrapper}>
-        <TouchableOpacity style={{height: 48, width: 48}} onPress={toogleStart}>
-          {isPushing ? (
-            <PauseIcon
-              fill="rgba(255, 255, 255, 0.5)"
-              style={{widht: 48, height: 48}}
-            />
-          ) : (
-            <StartIcon
-              fill="rgba(255, 255, 255, 0.5)"
-              style={{widht: 48, height: 48}}
-            />
-          )}
-        </TouchableOpacity>
-      </View>
+      <Player style={styles.container} ref={playerRef} />
     </View>
   );
 };
@@ -90,20 +63,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     zIndex: 2,
-  },
-  camera: {
-    height,
-    width,
-    position: 'absolute',
-    zIndex: 2,
-  },
-  operationButtonWrapper: {
-    zIndex: 3,
-    height: 60,
-    width: '100%',
-    position: 'absolute',
-    bottom: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });

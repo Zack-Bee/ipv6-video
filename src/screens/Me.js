@@ -8,17 +8,18 @@ import {
   StyleSheet,
   ScrollView,
   ToastAndroid,
-  Clipboard,
+  Dimensions,
+  // Clipboard,
 } from 'react-native';
-// import Clipboard from '@react-native-community/clipboard';
-import {Button, Layout, Text} from '@ui-kitten/components';
+import Clipboard from '@react-native-community/clipboard';
+import {Button, Layout, Text, Modal, Input} from '@ui-kitten/components';
 import QRCode from 'react-native-qrcode-svg';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 
 import config from '../../config/config';
 import Login from './Login';
 import Signup from './Signup';
 import fetchJSON from '../utils/fetchJSON';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import createIcon from '../utils/createIcon';
 
 const {Navigator, Screen} = createStackNavigator();
@@ -29,25 +30,40 @@ const RefreshIcon = createIcon('refresh');
 
 const CopyIcon = createIcon('clipboard-outline');
 
-const Index = () => {
-  const [isLoading, setIsLoading] = useState(true);
+const {height, width} = Dimensions.get('window');
+
+const Index = ({setIsLogin}) => {
+  const [isShowModal, setIsShowModal] = useState(false);
   const [detail, setDetail] = useState({});
   const navigation = useNavigation();
+  const [newTitle, setNewTitle] = useState(detail.title);
   useEffect(() => {
     const fetchData = async () => {
-      const {isSuccess, error, ...detail} = await fetchJSON(
+      const {isSuccess, error, errorCode, ...detail} = await fetchJSON(
         config.httpHost + config.liveDetailRouter,
         {method: 'GET'},
       );
       if (!isSuccess) {
-        console.error(error);
+        console.log(errorCode);
+        if (errorCode === 403) {
+          ToastAndroid.show('尚未登录', ToastAndroid.SHORT);
+          try {
+            await AsyncStorage.setItem('isLogin', JSON.stringify(false));
+            setTimeout(() => {
+              setIsLogin(false);
+            }, 2000);
+          } catch (err) {
+            console.error(err);
+          }
+        } else {
+          console.error(error);
+        }
       } else {
         setDetail(detail);
-        setIsLoading(false);
       }
     };
     fetchData();
-  }, []);
+  }, [setIsLogin]);
   useFocusEffect(
     useCallback(() => {
       StatusBar.setTranslucent(false);
@@ -55,14 +71,52 @@ const Index = () => {
       StatusBar.setBackgroundColor('transparent');
     }, []),
   );
+  const showModal = () => {
+    setNewTitle(detail.title);
+    setIsShowModal(true);
+  };
   const rtmpUrl = `${config.rtmpHost}/${detail.id}?key=${detail.key}`;
-  const onCopy = useCallback(() => {
+  const onCopy = () => {
     Clipboard.setString(rtmpUrl);
-    ToastAndroid.show('已复制地址');
-  }, [rtmpUrl]);
+    ToastAndroid.show('已复制地址', ToastAndroid.SHORT);
+  };
+  const logout = async () => {
+    const {isSuccess, error} = await fetchJSON(
+      config.httpHost + config.logoutRouter,
+    );
+    if (isSuccess) {
+      ToastAndroid.show('已退出当前账号', ToastAndroid.SHORT);
+      AsyncStorage.setItem('isLogin', JSON.stringify(false)).then(() => {
+        setIsLogin(false);
+      });
+    }
+  };
+  const refreshKey = async () => {
+    const {isSuccess, key, error} = await fetchJSON(
+      config.httpHost + config.refreshKeyRouter,
+    );
+    if (!isSuccess) {
+      ToastAndroid.show(error, ToastAndroid.SHORT);
+    } else {
+      setDetail({...detail, key});
+      ToastAndroid.show('刷新成功！', ToastAndroid.SHORT);
+    }
+  };
   const onPressLiveButton = useCallback(() => {
     navigation.navigate('pusher', {rtmpUrl});
   }, [navigation, rtmpUrl]);
+
+  const changeTitle = async () => {
+    setIsShowModal(false);
+    const {isSuccess, error} = await fetchJSON(
+      config.httpHost + config.changeLiveTitleRouter,
+      {method: 'POST', body: JSON.stringify({title: newTitle})},
+    );
+    if (isSuccess) {
+      setDetail({...detail, title: newTitle});
+      ToastAndroid.show('修改标题成功', ToastAndroid.SHORT);
+    }
+  };
   return (
     <ScrollView style={{flex: 1}}>
       <Layout level="2" style={{flex: 1, marginBottom: 16}}>
@@ -96,7 +150,11 @@ const Index = () => {
               alignItems: 'center',
             }}>
             <Text category="p1">{`节目标题：${detail.title}`}</Text>
-            <Button size="tiny" status="info" accessoryRight={EditIcon}>
+            <Button
+              size="tiny"
+              status="info"
+              accessoryRight={EditIcon}
+              onPress={showModal}>
               修改标题
             </Button>
           </View>
@@ -111,7 +169,7 @@ const Index = () => {
             <Text
               style={{flex: 1}}
               category="p1">{`RTMP推流地址：${rtmpUrl}`}</Text>
-            <View style={{justifyContent: 'space-between'}}>
+            <View style={{justifyContent: 'space-between', marginLeft: 16}}>
               <Button
                 onPress={onCopy}
                 style={{marginBottom: 8}}
@@ -120,8 +178,12 @@ const Index = () => {
                 accessoryRight={CopyIcon}>
                 复制地址
               </Button>
-              <Button size="tiny" status="info" accessoryRight={RefreshIcon}>
-                刷新地址
+              <Button
+                size="tiny"
+                status="info"
+                onPress={refreshKey}
+                accessoryRight={RefreshIcon}>
+                刷新密钥
               </Button>
             </View>
           </View>
@@ -140,16 +202,41 @@ const Index = () => {
           onPress={onPressLiveButton}>
           开始直播
         </Button>
-        <Button
-          status="danger"
-          style={styles.button}
-          onPress={() => AsyncStorage.clear()}>
+        <Button status="danger" style={styles.button} onPress={logout}>
           退出登录
         </Button>
-        <Button style={styles.button} onPress={() => AsyncStorage.clear()}>
-          清除缓存
-        </Button>
       </Layout>
+      <Modal
+        visible={isShowModal}
+        backdropStyle={{backgroundColor: 'rgba(0, 0, 0, 0.5)'}}
+        onBackdropPress={() => setIsShowModal(false)}>
+        <View
+          style={{
+            justifyContent: 'space-around',
+            height: 120,
+            width: width - 48,
+            paddingHorizontal: 24,
+            backgroundColor: '#fff',
+            paddingVertical: 16,
+            borderRadius: 16,
+          }}>
+          <Input
+            style={{
+              borderColor: 'rgba(0, 0, 0, 0.6)',
+              color: 'rgba(0, 0, 0, 0.6)',
+            }}
+            textStyle={{color: 'rgba(0, 0, 0, 0.6)'}}
+            status="control"
+            placeholder="输入新的节目标题"
+            value={newTitle}
+            onChangeText={setNewTitle}
+            placeholderTextColor="rgba(0, 0, 0, 0.6)"
+          />
+          <Button status="info" size="tiny" onPress={changeTitle}>
+            修改标题
+          </Button>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -162,6 +249,12 @@ const Me = () => {
       setIsLogin(JSON.parse(dataStr));
     });
   }, []);
+
+  const enjectedIndex = useCallback(
+    props => <Index setIsLogin={setIsLogin} {...props} />,
+    [],
+  );
+
   const enjectedLogin = useCallback(
     props => <Login setIsLogin={setIsLogin} {...props} />,
     [],
@@ -188,7 +281,7 @@ const Me = () => {
         <Screen
           name="me"
           options={{title: '我', headerShown: false}}
-          component={Index}
+          component={enjectedIndex}
         />
       ) : (
         <>

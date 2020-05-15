@@ -30,24 +30,24 @@ export default ({navigation, setIsLogin}) => {
 
   const onSignupButtonPress = async () => {
     if (id.trim() === '') {
-      ToastAndroid.show('[账号ID] 格式错误', '[账号ID] 不能为空');
+      ToastAndroid.show('[账号ID] 不能为空', ToastAndroid.SHORT);
       return;
     } else if (!isAlphaAndNumericSequence(id.trim())) {
-      ToastAndroid.show('[账号ID] 格式错误', '[账号ID] 应由字母与数字组成');
+      ToastAndroid.show('[账号ID] 应由字母与数字组成', ToastAndroid.SHORT);
       return;
     }
     if (password.trim() === '') {
-      ToastAndroid.show('[密码] 格式错误', '[密码] 不能为空');
+      ToastAndroid.show('[密码] 不能为空', ToastAndroid.SHORT);
       return;
     } else if (password.trim().length < 8) {
-      ToastAndroid.show('[密码] 格式错误', '[密码] 不能少于8位');
+      ToastAndroid.show('[密码] 不能少于8位', ToastAndroid.SHORT);
       return;
     } else if (!isAlphaAndNumericSequence(password.trim())) {
-      ToastAndroid.show('[密码] 格式格式错误', '[密码] 格式应由字母与数字组成');
+      ToastAndroid.show('[密码] 应由字母与数字组成', ToastAndroid.SHORT);
       return;
     }
     if (channelName.trim() === '') {
-      ToastAndroid.show('[频道名] 格式错误', '[频道名] 不能为空');
+      ToastAndroid.show('[频道名] 不能为空', ToastAndroid.SHORT);
       return;
     }
     try {
@@ -63,10 +63,10 @@ export default ({navigation, setIsLogin}) => {
         },
       );
       if (!isSuccess) {
-        ToastAndroid.show(error);
+        ToastAndroid.show(error, ToastAndroid.SHORT);
         return;
       }
-      ToastAndroid.show('注册成功，正在跳转');
+      ToastAndroid.show('注册成功，正在跳转', ToastAndroid.SHORT);
       AsyncStorage.setItem('isLogin', JSON.stringify(true)).then(() => {
         setIsLogin(true);
       });

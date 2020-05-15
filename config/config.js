@@ -29,6 +29,9 @@ module.exports = {
   // rtmp服务器地址
   rtmpHost: 'rtmp://192.168.0.106/live',
 
+  // hostIp
+  host: '192.168.0.106',
+
   // hdtv直播的基本地址
   hdtvLiveBaseUrl: 'https://hdtv.neu6.edu.cn/v1/live/',
 
@@ -48,10 +51,13 @@ module.exports = {
   loginRouter: '/login',
 
   // 登出
-  logoutRouter: 'logout',
+  logoutRouter: '/logout',
 
   // 获取频道列表
   channelListRouter: '/channelList',
+
+  // 刷新密钥
+  refreshKeyRouter: '/refreshKey',
 
   // 注册组主
   registerGroupOwnerRouter: '/registerGroupOwner',
@@ -69,7 +75,7 @@ module.exports = {
   authorityRouter: '/authority',
 
   // 修改直播的标题
-  chnageLiveTitleRouter: '/changeLiveTitle',
+  changeLiveTitleRouter: '/changeLiveTitle',
 
   // 获取黑名单
   blackListRouter: '/blackList',

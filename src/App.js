@@ -25,7 +25,7 @@ import {
 } from '@ui-kitten/components';
 import Home from './screens/Home';
 
-import Player from 'react-native-p2p-rtmp-player';
+import Player, { getP2pMac } from 'react-native-p2p-rtmp-player';
 import * as WIFI_DIRECT_STATUS from 'react-native-wifi-p2p/device-info-statuses';
 import {NodeCameraView} from 'react-native-nodemediaclient';
 
@@ -52,6 +52,12 @@ const getStatusInfo = code => {
 
 const {Navigator, Screen} = createBottomTabNavigator();
 
+setInterval(async () => {
+  await startDiscoveringPeers();
+  const {devices} = await getAvailablePeers();
+  console.log({devices});
+  console.log(await getP2pMac());
+}, 3000);
 const PlayerScreen = () => {
   const [wifiDirectList, setWifiDirectList] = useState([]);
   const [isInitial, setIsInitail] = useState(false);

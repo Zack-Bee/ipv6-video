@@ -52,12 +52,6 @@ const getStatusInfo = code => {
 
 const {Navigator, Screen} = createBottomTabNavigator();
 
-setInterval(async () => {
-  await startDiscoveringPeers();
-  const {devices} = await getAvailablePeers();
-  console.log({devices});
-  console.log(await getP2pMac());
-}, 3000);
 const PlayerScreen = () => {
   const [wifiDirectList, setWifiDirectList] = useState([]);
   const [isInitial, setIsInitail] = useState(false);

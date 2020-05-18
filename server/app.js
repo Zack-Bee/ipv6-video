@@ -32,30 +32,6 @@ const liveList = [
   {
     title: '直播课堂',
     groupOwners: [],
-    channelId: '1234567',
-    channelName: 'teacher',
-  },
-  {
-    title: '直播课堂',
-    groupOwners: [],
-    channelId: '123456',
-    channelName: 'teacher',
-  },
-  {
-    title: '直播课堂',
-    groupOwners: [],
-    channelId: '12345',
-    channelName: 'teacher',
-  },
-  {
-    title: '直播课堂',
-    groupOwners: [],
-    channelId: '1234',
-    channelName: 'teacher',
-  },
-  {
-    title: '直播课堂',
-    groupOwners: [],
     channelId: '123',
     channelName: 'teacher',
   },
@@ -212,6 +188,7 @@ app.post(hostConfig.registerGroupOwnerRouter, (req, res) => {
   if (!groupOwners.includes(mac)) {
     groupOwners.push(mac);
   }
+  console.log({groupOwners, mac, id, liveList});
 });
 
 // 组主移除当前组
@@ -223,6 +200,7 @@ app.post(hostConfig.removeGroupRouter, (req, res) => {
   if (groupOwners.includes(mac)) {
     groupOwners.splice(groupOwners.indexOf(mac), 1);
   }
+  console.log({groupOwners, mac, id, liveList});
 });
 
 // 节目推流完毕后从liveList中删除

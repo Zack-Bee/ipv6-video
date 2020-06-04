@@ -168,7 +168,9 @@ const Index = ({setIsLogin}) => {
             }}>
             <Text
               style={{flex: 1}}
-              category="p1">{`RTMP推流地址：${rtmpUrl}`}</Text>
+              category="p1">{`RTMP推流地址：${'fe80::83f:f53e:e538:684e'}/${
+              detail.id
+            }?key=${detail.key}`}</Text>
             <View style={{justifyContent: 'space-between', marginLeft: 16}}>
               <Button
                 onPress={onCopy}

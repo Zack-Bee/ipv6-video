@@ -43,10 +43,6 @@ module.exports = (sequelize, DataTypes) =>
       type: DataTypes.STRING,
       defaultValue: '测试标题',
     },
-    createdBy: {
-      type: DataTypes.STRING,
-      defaultValue: '',
-    },
     createdAt: {
       type: DataTypes.DATE,
       get() {

@@ -183,8 +183,9 @@ app.post('/authorize', (req, res) => {
 // TODO:
 app.post(hostConfig.registerGroupOwnerRouter, (req, res) => {
   const {mac, id} = req.body;
-  const groupOwners = liveList.find(detail => detail.channelId === id)
-    .groupOwners;
+  const {groupOwners} = liveList.find(detail => detail.channelId === id) || {
+    groupOwners: [],
+  };
   if (!groupOwners.includes(mac)) {
     groupOwners.push(mac);
   }
@@ -195,8 +196,9 @@ app.post(hostConfig.registerGroupOwnerRouter, (req, res) => {
 // TODO:
 app.post(hostConfig.removeGroupRouter, (req, res) => {
   const {mac, id} = req.body;
-  const groupOwners = liveList.find(detail => detail.channelId === id)
-    .groupOwners;
+  const {groupOwners} = liveList.find(detail => detail.channelId === id) || {
+    groupOwners: [],
+  };
   if (groupOwners.includes(mac)) {
     groupOwners.splice(groupOwners.indexOf(mac), 1);
   }

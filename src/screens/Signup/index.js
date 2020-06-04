@@ -66,7 +66,7 @@ export default ({navigation, setIsLogin}) => {
         ToastAndroid.show(error, ToastAndroid.SHORT);
         return;
       }
-      ToastAndroid.show('注册成功，正在跳转', ToastAndroid.SHORT);
+      ToastAndroid.show('注册成功，正在跳转', ToastAndroid.LONG);
       AsyncStorage.setItem('isLogin', JSON.stringify(true)).then(() => {
         setIsLogin(true);
       });
